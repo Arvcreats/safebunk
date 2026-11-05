@@ -1,7 +1,8 @@
-# SafeBunk v2.4 🎓
+# SafeBunk v2.5 🎓
 
 **SafeBunk is an attendance planner for college students.** It answers one question in seconds: *"Can I safely bunk today's class, or will my attendance drop below the target?"* It tracks every subject, shows recovery and safe-bunk numbers, plans leaves in advance, and — from v2.2 — understands your uploaded timetable.
 
+> **v2.5:** in-app update system — the app checks for new versions on open and shows an update popup; every release is signed with the same key, so updates install over the old app without losing data.
 > **v2.4:** launcher icon ab seedha build me lagta hai (default icon wali dikkat khatam).
 > **v2.3 fix:** a startup order bug made the app open but nothing was clickable. Fixed and verified with a full simulated user-flow test (all tabs, timetable add, attend marking).
 
@@ -36,6 +37,10 @@ Once the timetable is saved, the **Today** screen lists today's classes in time 
 App icon/logo: `assets/logo.png` (the web icons `www/icon-192.png` and `www/icon-512.png` are generated from it).
 
 ---
+
+## 🔄 App updates
+
+The app checks `version.json` in this repo every time it opens. If a newer version exists, the user sees an update popup with what's new and a one-tap **Update** button that downloads the latest APK from GitHub Releases (`releases/latest`). Every release APK is signed with the same release key, so updates install **over** the installed app and user data is preserved. Settings also shows the current version with a manual "Update check karo" button.
 
 ## Who can edit this code?
 
