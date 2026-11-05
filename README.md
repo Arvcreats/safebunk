@@ -36,9 +36,13 @@ App icon/logo: `assets/logo.png` (the web icons `www/icon-192.png` and `www/icon
 
 ---
 
-## 1. Enable login (Firebase, free) — owner does this once
+## Who can edit this code?
 
-1. Go to console.firebase.google.com → **Add project** (with the owner's Google account).
+This is a public repository — anyone can view the code and suggest changes through GitHub Issues. **Only the owner can edit or publish this code** and release new versions. The app is a living project and is updated from time to time.
+
+## 1. Enable login (Firebase, free) — one-time setup
+
+1. Go to console.firebase.google.com → **Add project** (with your Google account).
 2. Build → Authentication → Get started → enable **Email/Password**.
 3. Build → Firestore Database → Create database (production mode). Then in the **Rules** tab, paste this ENTIRE text:
    ```
@@ -49,8 +53,7 @@ App icon/logo: `assets/logo.png` (the web icons `www/icon-192.png` and `www/icon
        match /users/{uid} {
          allow read, write: if request.auth != null && request.auth.uid == uid;
        }
-       // Login record (email, last login, login count) — the user writes their own,
-       // and only the admin (owner) can list/read all profiles
+       // Login profile record — each user writes only their own
        match /profiles/{uid} {
          allow create, update: if request.auth != null && request.auth.uid == uid;
          allow read: if request.auth != null && request.auth.uid == uid;
@@ -59,17 +62,10 @@ App icon/logo: `assets/logo.png` (the web icons `www/icon-192.png` and `www/icon
      }
    }
    ```
-   Note: the admin email here must match `ADMIN_EMAIL` in `www/index.html`.
 4. Project settings → Your apps → Web (`</>`) → register the app → copy the **firebaseConfig** and paste it into `www/firebase-config.js`.
-5. Push again with the config filled in — login, sync and the admin panel all switch on. If the config is left empty, the app simply runs in **guest mode** (no login, everything else works).
+5. Push again with the config filled in — login and sync switch on. If the config is left empty, the app simply runs in **guest mode** (no login, everything else works).
 
-## 2. Admin — see users + Excel (owner only)
-
-- Log in to the app with the owner/admin email → open **Settings** → the **"👑 Admin — users"** card appears.
-- **Users load karo / Load users** = the full user list (email, last login, login count, join date).
-- **⬇ Excel download** = the same list as a CSV file that opens in Excel. Simple version: the owner can see **who logged in, when they logged in, and how many times** — and download it as a sheet any time.
-
-## 3. Put it on GitHub
+## 2. Put it on GitHub
 
 ```
 git init && git add . && git commit -m "SafeBunk v2"
@@ -78,7 +74,7 @@ git remote add origin https://github.com/<username>/safebunk.git
 git push -u origin main
 ```
 
-## 4. Download the APK
+## 3. Download the APK
 
 After pushing, go to GitHub → **Actions** → "Build APK" → when the run finishes, download **Artifacts → SafeBunk-APK** and install it on the phone (allow "Install unknown apps" if Android asks).
 During the build, the workflow tries to generate the APK launcher icon from `assets/logo.png` (even if that one step fails, the APK still builds, with a default icon).
