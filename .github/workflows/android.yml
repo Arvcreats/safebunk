@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,8 +25,28 @@ jobs:
           pip install --quiet pillow
           python3 scripts/make_icons.py android/app/src/main/res assets/logo.png
       - run: npx cap sync android
-      - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+      - name: Release signing setup (secret ho to signed release, warna debug)
+        env:
+          SB_B64: ${{ secrets.SAFEBUNK_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$SB_B64" ]; then echo "$SB_B64" | base64 -d > android/release.p12 && python3 scripts/apply_signing.py android/app/build.gradle && echo "SIGNED RELEASE BUILD"; else echo "No signing secret — debug build"; fi
+      - name: Build APK
+        env:
+          SB_SIGN_PASS: ${{ secrets.SAFEBUNK_SIGN_PASS }}
+        run: |
+          cd android && chmod +x gradlew
+          if [ -f release.p12 ]; then ./gradlew assembleRelease; else ./gradlew assembleDebug; fi
       - uses: actions/upload-artifact@v4
         with:
           name: SafeBunk-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/*/app-*.apk
+      - name: GitHub Release (app update system ke liye)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=$(ls android/app/build/outputs/apk/release/app-release.apk 2>/dev/null || ls android/app/build/outputs/apk/debug/app-debug.apk)
+          cp "$APK" SafeBunk.apk
+          TAG="v$(jq -r .version version.json)"
+          NOTES=$(jq -r '.notes[] | "- " + .' version.json)
+          gh release create "$TAG" SafeBunk.apk --title "SafeBunk $TAG" --notes "$NOTES" || gh release upload "$TAG" SafeBunk.apk --clobber
