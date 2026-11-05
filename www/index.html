@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0B1220"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>SafeBunk</title>
+<style>
+:root{--bg:#0B1220;--card:#131C2E;--c2:#182540;--line:#22314f;--tx:#E8EEF7;--mu:#93A4BC;--ac:#38BDF8;--g:#22C55E;--a:#F59E0B;--r:#EF4444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 Inter,system-ui,-apple-system,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 110px}
+h2{font-size:20px;margin:4px 0 14px}h3{font-size:15px;margin-bottom:8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.mu{color:var(--mu)}.sm{font-size:12px}.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ans{text-align:center;padding:22px 16px}.ans b{font-size:22px;display:block}.ans.ok{border-color:var(--g);background:rgba(34,197,94,.08)}.ans.warn{border-color:var(--a);background:rgba(245,158,11,.08)}
+.bar{height:9px;border-radius:5px;background:#0B1220;overflow:hidden;margin:10px 0 6px}.bar i{display:block;height:100%}
+.safe{color:var(--g)}.risk{color:var(--a)}.danger{color:var(--r)}i.safe{background:var(--g)}i.risk{background:var(--a)}i.danger{background:var(--r)}
+.pc{font-size:24px;font-weight:800}.nm{font-size:17px;font-weight:700}
+.btns{display:flex;gap:8px;margin-top:10px}
+.btn{flex:1;min-height:46px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--c2);color:var(--tx);font-size:14px;font-weight:600}
+.btn:active{transform:scale(.97)}.btn.p{background:var(--ac);color:#06202f;border-color:var(--ac)}.btn.at{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.4)}.btn.ms{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}.btn.sq{flex:0 0 46px;padding:0}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 5px}
+input{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:10px;outline:none}input:focus{border-color:var(--ac)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--tx);font-size:13px}.chip.on{background:var(--ac);color:#06202f;border-color:var(--ac);font-weight:700}
+.dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dg{background:var(--g)}.dr{background:var(--r)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0f1829;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);font-size:11px}nav button.on{color:var(--ac)}nav b{display:block;font-size:20px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:9}.sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:99;max-width:90%}
+</style></head><body>
+<div style="max-width:480px;margin:0 auto;padding:16px 16px 0;display:flex;gap:10px;align-items:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:40px;height:40px;border-radius:11px"><div><b style="font-size:18px">SafeBunk</b><div class="mu sm">Attendance Planner — bunk safe hai ya nahi?</div></div></div>
+<div class="wrap" id="app"></div>
+<nav><button data-t="today" onclick="go('today')"><b>📅</b>Today</button><button data-t="subj" onclick="go('subj')"><b>📚</b>Subjects</button><button data-t="plan" onclick="go('plan')"><b>✈️</b>Planner</button><button data-t="set" onclick="go('set')"><b>⚙️</b>Settings</button></nav>
+<div id="sheet"></div><div id="toast"></div>
+<script src="firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
+const ADMIN_EMAIL="atharvpatel2008@gmail.com";
+const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[]});
+function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
+let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const today=()=>iso(new Date());
+const tf=()=>(S.target-(S.round?.5:0))/100;
+const pct=s=>s.total?s.attended/s.total*100:0;
+const need=(a,t,f)=>(!t||a/t>=f)?0:Math.ceil((f*t-a)/(1-f));
+const safeN=(a,t,f)=>(!t||a/t<f)?0:Math.max(0,Math.floor(a/f-t));
+const zone=p=>p>=S.target-(S.round?.5:0)?"safe":p>=S.target-10?"risk":"danger";
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.x);toast.x=setTimeout(()=>t.style.display="none",2600)}
+function countDays(s,from,to){if(!(s.days||[]).length||!from||!to)return 0;let n=0;const b=new Date(to+"T00:00");for(const d=new Date(from+"T00:00");d<=b;d.setDate(d.getDate()+1))if(s.days.includes(d.getDay()))n++;return n}
+const last=s=>(s.log||[]).slice(-1)[0];
+const marked=s=>{const e=last(s);return e&&e.d===today()?e:null};
+function rem(s){if(!S.semEnd||S.semEnd<today())return null;return Math.max(0,countDays(s,today(),S.semEnd)-((s.days||[]).includes(new Date().getDay())&&marked(s)?1:0))}
+function bud(s){const f=tf(),r=rem(s);if(r==null)return{r,b:safeN(s.attended,s.total,f),imp:false};const b=Math.floor(s.attended+r-f*(s.total+r)+1e-9);return{r,b,imp:b<0}}
+function advice(s){const f=tf(),B=bud(s),n=need(s.attended,s.total,f);
+ if(B.imp)return`<b class="danger">❌ ${S.target}% ab possible nahi:</b> baaki ${B.r} sab attend karke bhi max ${Math.floor((s.attended+B.r)/(s.total+B.r)*100)}%. College se condonation/medical ke baare me baat karo.`;
+ if(B.r==null)return n?`<b class="${zone(pct(s))}">Recovery:</b> agli <b>${n}</b> classes lagatar attend karo.`:`<b class="safe">Safe:</b> abhi <b>${B.b}</b> bunk chal sakte hain.`;
+ return`<b class="${B.b?"safe":"risk"}">Semester plan:</b> ${B.r} classes baaki → <b>${B.b}</b> bunk, <b>${B.r-B.b}</b> attend karni hongi.`}
+function mark(i,a){const s=S.subjects[i];(s.log=s.log||[]).push({d:today(),a:a});s.total++;s.attended+=a;save();render()}
+function undo(i){const s=S.subjects[i],e=(s.log||[]).pop();if(!e)return;s.total=Math.max(0,s.total-1);if(e.a)s.attended=Math.max(0,s.attended-1);save();render();toast("Undo ho gaya")}
+function go(t){tab=t;render();scrollTo(0,0)}
+const empty=`<div class="card center"><p class="mu">Koi subject nahi hai.</p><button class="btn p" style="margin-top:12px;width:100%" onclick="sheet(-1)">+ Pehla subject add karo</button></div>`;
+function vToday(){const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;if(!S.subjects.length)return h+empty;
+ const L=S.subjects.map((s,i)=>({s,i})).filter(x=>(x.s.days||[]).includes(wd));let cls="",a,sub="";
+ if(!L.length){a="😴 Aaj koi class nahi";sub="Subjects me class ke din set karo (✎)."}
+ else{const p=L.filter(x=>!marked(x.s)),bl=p.filter(x=>bud(x.s).b<1);
+  if(!p.length){a="✅ Aaj ka attendance mark ho gaya";cls="ok"}
+  else if(!bl.length){a="✅ Haan, aaj bunk chal sakta hai";cls="ok";sub="Har baaki subject me margin hai."}
+  else{a="⚠️ Aaj bunk mat karo";cls="warn";sub=bl.map(x=>esc(x.s.name)).join(", ")+" me margin nahi."}}
+ h+=`<div class="card ans ${cls}"><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div></div>`;
+ return h+L.map(({s,i})=>{const m=marked(s),p=pct(s);return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><span class="pc ${zone(p)}">${Math.round(p)}%</span></div><p class="sm mu">${s.attended}/${s.total} · ${advice(s)}</p>`+
+  (m?`<div class="btns"><div class="btn" style="text-align:center;line-height:26px">${m.a?"✓ Attend ki":"✕ Miss kiya"}</div><button class="btn sq" onclick="undo(${i})">↩</button></div>`:`<div class="btns"><button class="btn at" onclick="mark(${i},1)">✓ Attend ki</button><button class="btn ms" onclick="mark(${i},0)">✕ Bunk</button></div>`)+`</div>`}).join("")}
+function vSubj(){let h=`<h2>Subjects</h2>`;if(!S.subjects.length)return h+empty;
+ const A=S.subjects.reduce((x,s)=>x+s.attended,0),T=S.subjects.reduce((x,s)=>x+s.total,0),w=[...S.subjects].sort((a,b)=>pct(a)-pct(b))[0];
+ h+=`<div class="card"><div class="row"><span class="mu sm">OVERALL</span><span class="pc ${zone(pct({attended:A,total:T}))}">${T?Math.round(A/T*100):0}%</span></div><p class="sm mu">Sabse weak: <b style="color:var(--tx)">${esc(w.name)}</b> (${Math.round(pct(w))}%). College aksar har subject me ${S.target}% maangta hai.</p></div>`;
+ return h+S.subjects.map((s,i)=>{const p=pct(s),z=zone(p),lg=(s.log||[]).slice(-10);return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><span class="pc ${z}">${Math.round(p)}%</span></div><div class="bar"><i class="${z}" style="width:${Math.min(100,p)}%"></i></div><div class="sm mu">${s.attended}/${s.total} · ${(s.days||[]).map(d=>D[d]).join(" ")||"din set nahi"}</div><p style="margin:8px 0" class="sm">${advice(s)}</p><div class="dots">${lg.map(e=>`<i title="${e.d}" class="${e.a?"dg":"dr"}"></i>`).join("")}</div><div class="btns"><button class="btn" onclick="sheet(${i})">✎ Edit</button><button class="btn" onclick="undo(${i})">↩ Undo</button><button class="btn sq" onclick="del(${i})">🗑</button></div></div>`}).join("")+`<button class="btn p" style="width:100%" onclick="sheet(-1)">+ Subject add karo</button>`}
+function vPlan(){let h=`<h2>Leave Planner</h2><div class="card"><p class="sm mu">Chhutti ki dates chuno. Timetable (class ke din) se auto calculate hoga.</p><div class="g2"><div><label>Se</label><input type="date" value="${pf}" onchange="pf=this.value;render()"></div><div><label>Tak</label><input type="date" value="${pt}" onchange="pt=this.value;render()"></div></div></div>`;
+ if(!pf||!pt||pt<pf)return h;const f=tf();
+ return h+S.subjects.map(s=>{const m=countDays(s,pf,pt),np=s.attended/(s.total+m)*100||0,B=bud(s),nb=B.r==null?null:B.b-m;
+  return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><b class="${zone(np)}">${Math.round(np)}%</b></div><p class="sm mu">${m?`~${m} classes miss`:"is range me class nahi"}${nb==null?(need(s.attended,s.total+m,f)?` · wapas aane ke liye ${need(s.attended,s.total+m,f)} lagatar attend`:" · phir bhi safe"):(nb<0?` · <b class="danger">${S.target}% semester-end tak miss ho jayega</b>`:` · semester ke liye ${nb} bunk bachenge`)}</p></div>`}).join("")}
+function vSet(){const fb=!fbOK?`<p class="sm mu">Guest mode: data sirf is device me. Login ke liye <code>www/firebase-config.js</code> me Firebase keys bharo (README dekho).</p>`:user?`<p class="sm">Logged in: <b>${esc(user.email)}</b></p><button class="btn" style="width:100%;margin-top:8px" onclick="auth.signOut()">Logout</button>`:`<label>Email</label><input id="aE" type="email" autocomplete="email"><label>Password (6+)</label><input id="aP" type="password" autocomplete="current-password"><div class="btns"><button class="btn p" onclick="authGo(0)">Login</button><button class="btn" onclick="authGo(1)">Sign up</button></div>`;
+ return`<h2>Settings</h2><div class="card"><h3>👤 Account (sync)</h3>${fb}<p class="sm mu" style="margin-top:8px">Login karne par tumhara email aur login ka time sync ke liye save hota hai. Password kabhi kisi ko nahi dikhta — Firebase use secure rakhta hai.</p></div>
+<div class="card"><h3>🎯 Target</h3><div class="chips">${[60,65,70,75,80].map(t=>`<button class="chip ${t==S.target?"on":""}" onclick="S.target=${t};save();render()">${t}%</button>`).join("")}</div><label><input type="checkbox" style="width:auto" ${S.round?"checked":""} onchange="S.round=this.checked;save();render()"> 74.5% ko 75% maano (rounding)</label><label>Semester end date</label><input type="date" value="${S.semEnd}" onchange="S.semEnd=this.value;save();render()"></div>
+<div class="card"><h3>🔔 Daily reminder</h3><input type="time" value="${S.remind}" onchange="setRemind(this.value)"><p class="sm mu" style="margin-top:6px">Roz is time pe "attendance mark karo" notification aayega.</p></div>
+<div class="card"><h3>💾 Backup</h3><div class="btns"><button class="btn" onclick="exp()">Copy data</button><button class="btn" onclick="imp()">Paste data</button></div><button class="btn ms" style="width:100%;margin-top:8px" onclick="if(confirm('Sab data delete?')){S=def();save();render()}">Reset sab</button></div>
+<div class="card"><h3>📤 App share karo</h3><p class="sm mu">Doston ko bhejo — attendance ka tension khatam.</p><button class="btn p" style="width:100%;margin-top:8px" onclick="shareApp()">Share SafeBunk</button></div>
+${user&&user.email===ADMIN_EMAIL?`<div class="card"><h3>👑 Admin — users</h3><div id="adminOut"><p class="sm mu">Kaun-kaun app use kar raha hai, kab login kiya — sab yahan dikhega.</p></div><div class="btns"><button class="btn" onclick="adminLoad()">Users load karo</button><button class="btn" onclick="adminExcel()">⬇ Excel download</button></div></div>`:""}
+<p class="sm mu">SafeBunk v2 · sirf planning ke liye, college ke rules final hain.</p>`}
+function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet})[tab]();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
+function sheet(i){const s=i<0?{name:"",attended:0,total:0,days:[]}:S.subjects[i];
+ $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Naya subject":"Edit subject"}</h3><label>Naam</label><input id="sN" value="${esc(s.name)}"><div class="g2"><div><label>Attend ki</label><input id="sA" type="number" min="0" value="${s.attended}"></div><div><label>Kul hui</label><input id="sT" type="number" min="0" value="${s.total}"></div></div><label>Class kin dino me hoti hai</label><div class="chips" id="sD">${D.map((d,k)=>`<button class="chip ${(s.days||[]).includes(k)?"on":""}" data-k="${k}" onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div><button class="btn p" style="width:100%;margin-top:16px" onclick="saveSub(${i})">Save</button></div></div>`}
+function saveSub(i){const n=$("sN").value.trim(),a=parseInt($("sA").value)||0,t=parseInt($("sT").value)||0;if(!n||t<a)return toast("Naam daalo, aur kul >= attend");
+ const days=[...document.querySelectorAll("#sD .on")].map(b=>+b.dataset.k);if(i<0)S.subjects.push({name:n,attended:a,total:t,days,log:[]});else Object.assign(S.subjects[i],{name:n,attended:a,total:t,days});
+ $("sheet").innerHTML="";save();render()}
+function del(i){if(confirm(`"${S.subjects[i].name}" hata du?`)){S.subjects.splice(i,1);save();render()}}
+function exp(){const j=JSON.stringify(S);if(navigator.clipboard)navigator.clipboard.writeText(j).then(()=>toast("Data copy ho gaya, kahin safe rakh lo"),()=>expSheet(j));else expSheet(j)}
+function expSheet(j){$("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>Backup data</h3><p class="sm mu">Copy karke kahin safe rakh lo.</p><label>Data</label><input value='${j.replace(/&/g,"&amp;").replace(/'/g,"&#39;")}' readonly onclick="this.select()"><button class="btn p" style="width:100%;margin-top:14px" onclick="$('sheet').innerHTML=''">Band karo</button></div></div>`}
+function imp(){$("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>Backup import</h3><label>Backup data paste karo</label><input id="impT" placeholder="yahan paste karo"><button class="btn p" style="width:100%;margin-top:14px" onclick="doImp()">Import</button></div></div>`}
+function doImp(){const j=$("impT").value.trim();if(!j)return;try{const r=JSON.parse(j);if(!Array.isArray(r.subjects))throw 0;S=Object.assign(def(),r);$("sheet").innerHTML="";save();render();toast("Import ho gaya")}catch(e){toast("Data sahi nahi hai")}}
+function shareApp(){const data={title:"SafeBunk",text:"SafeBunk 🎓 — attendance planner: aaj bunk safe hai ya nahi, 75% tak recovery kitni chahiye, sab 10 second me. Try karo:",url:location.href};if(navigator.share)navigator.share(data).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(data.text+" "+data.url).then(()=>toast("Link copy ho gaya"))}
+let ADMIN_ROWS=[];
+async function prof(u){if(!db)return;try{const ref=db.collection("profiles").doc(u.uid);const p=await ref.get();const FV=firebase.firestore.FieldValue;await ref.set({email:u.email,lastLogin:Date.now(),loginCount:FV.increment(1),createdAt:p.exists&&p.data().createdAt?p.data().createdAt:Date.now()},{merge:true})}catch(e){}}
+function adminLoad(){if(!db)return toast("Pehle login + Firebase chahiye");$("adminOut").innerHTML="<p class='sm mu'>Load ho raha hai...</p>";db.collection("profiles").orderBy("lastLogin","desc").get().then(q=>{ADMIN_ROWS=q.docs.map(d=>d.data());$("adminOut").innerHTML=ADMIN_ROWS.length?ADMIN_ROWS.map(r=>`<p class="sm" style="margin:4px 0">👤 <b>${esc(r.email||"")}</b><br><span class="mu">Last login: ${r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"—"} · Kul logins: ${r.loginCount||1} · Join: ${r.createdAt?new Date(r.createdAt).toLocaleDateString("en-IN"):"—"}</span></p>`).join(""):"<p class='sm mu'>Abhi koi user nahi.</p>"}).catch(e=>{$("adminOut").innerHTML="<p class='sm mu'>Load nahi hua: "+esc(e.message)+"</p>"})}
+function adminExcel(){if(!ADMIN_ROWS.length)return toast("Pehle 'Users load karo' dabao");const rows=[["Email","Join Date","Last Login","Total Logins"]].concat(ADMIN_ROWS.map(r=>[r.email||"",r.createdAt?new Date(r.createdAt).toLocaleString("en-IN"):"",r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"",r.loginCount||1]));const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));a.download="safebunk-users.csv";a.click();toast("Excel file download ho gayi")}
+function authGo(up){const e=$("aE").value.trim(),p=$("aP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(x.message))}
+async function setRemind(t){S.remind=t;save();const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
+ try{if(LN){const p=await LN.requestPermissions();if(p.display!=="granted")return toast("Notification permission do");await LN.cancel({notifications:[{id:1}]});if(!t)return;const [h,m]=t.split(":").map(Number);await LN.schedule({notifications:[{id:1,title:"SafeBunk 🎓",body:"Aaj ki classes mark kar lo — attendance safe rakho!",schedule:{on:{hour:h,minute:m},allowWhileIdle:true}}]});toast("Reminder set: "+t)}
+ else if("Notification" in window){await Notification.requestPermission();toast("Reminder tab khula ho tab chalega (APK me hamesha)")}}catch(e){toast("Reminder set nahi hua")}}
+setInterval(()=>{if(!S.remind||!("Notification" in window)||Notification.permission!=="granted"||(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))return;const n=new Date(),hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");if(hm===S.remind&&localStorage.sbN!==today()){localStorage.sbN=today();new Notification("SafeBunk 🎓",{body:"Aaj ki classes mark kar lo"})}},20000);
+try{if(typeof firebase!=="undefined"&&window.FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey){firebase.initializeApp(FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();fbOK=true;
+ auth.onAuthStateChanged(async u=>{user=u;if(u){prof(u);try{const d=await db.collection("users").doc(u.uid).get();if(d.exists){const r=JSON.parse(d.data().data);if(r&&Array.isArray(r.subjects)&&(r._u||0)>=(S._u||0)){S=Object.assign(def(),r);localStorage.setItem(KEY,JSON.stringify(S))}else save()}else save()}catch(e){}}render()})}}catch(e){}
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+render();
+</script></body></html>
