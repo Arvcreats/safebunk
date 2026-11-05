@@ -39,6 +39,7 @@ const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
 const ADMIN_EMAIL="atharvpatel2008@gmail.com";
+const APP_VERSION="2.5";
 
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
@@ -88,9 +89,10 @@ function vSet(){const fb=!fbOK?`<p class="sm mu">Abhi guest mode chal raha hai �
 <div class="card"><h3>🎯 Target</h3><div class="chips">${[60,65,70,75,80].map(t=>`<button class="chip ${t==S.target?"on":""}" onclick="S.target=${t};save();render()">${t}%</button>`).join("")}</div><label><input type="checkbox" style="width:auto" ${S.round?"checked":""} onchange="S.round=this.checked;save();render()"> 74.5% ko 75% maano (rounding)</label><label>Semester end date</label><input type="date" value="${S.semEnd}" onchange="S.semEnd=this.value;save();render()"></div>
 <div class="card"><h3>🔔 Daily reminder</h3><input type="time" value="${S.remind}" onchange="setRemind(this.value)"><p class="sm mu" style="margin-top:6px">Roz is time pe "attendance mark karo" notification aayega.</p></div>
 <div class="card"><h3>💾 Backup</h3><div class="btns"><button class="btn" onclick="exp()">Copy data</button><button class="btn" onclick="imp()">Paste data</button></div><button class="btn ms" style="width:100%;margin-top:8px" onclick="if(confirm('Sab data delete?')){S=def();save();render()}">Reset sab</button></div>
+<div class="card"><h3>🔄 App update</h3><p class="sm mu">Tumhara version: <b style="color:var(--tx)">v${APP_VERSION}</b>. Naya version aane par app khulte hi update ka popup apne aap aa jata hai.</p><button class="btn" style="width:100%;margin-top:8px" onclick="checkUpdate(true)">Update check karo</button></div>
 <div class="card"><h3>📤 App share karo</h3><p class="sm mu">Doston ko bhejo — attendance ka tension khatam.</p><button class="btn p" style="width:100%;margin-top:8px" onclick="shareApp()">Share SafeBunk</button></div>
 ${user&&user.email===ADMIN_EMAIL?`<div class="card"><h3>👑 Admin — users</h3><div id="adminOut"><p class="sm mu">Kaun-kaun app use kar raha hai, kab login kiya — sab yahan dikhega.</p></div><div class="btns"><button class="btn" onclick="adminLoad()">Users load karo</button><button class="btn" onclick="adminExcel()">⬇ Excel download</button></div></div>`:""}
-<p class="sm mu">SafeBunk v2.4 · sirf planning ke liye, college ke rules final hain.</p>`}
+<p class="sm mu">SafeBunk v${APP_VERSION} · sirf planning ke liye, college ke rules final hain.</p>`}
 
 /* ===== Timetable (v2.2): upload photo/CSV, ya manually bharo — app samjhega aaj ki classes, time aur duration ===== */
 let TTD=[];
@@ -145,6 +147,16 @@ function ttImgUp(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new F
   }catch(e){$("sheet").innerHTML="";toast("OCR nahi chal paya (net chahiye) — photo save hai, manually add kar lo");render()}};
  img.src=r.result};r.readAsDataURL(f);inp.value=""}
 
+
+/* ===== App update system (v2.5): version.json se check, popup + download ===== */
+const VER_URL="https://raw.githubusercontent.com/Arvcreats/safebunk/main/version.json";
+function verCmp(a,b){const x=String(a).split(".").map(Number),y=String(b).split(".").map(Number);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0}
+async function checkUpdate(manual){if(typeof navigator!=="undefined"&&navigator.onLine===false){if(manual)toast("Net band hai — update check nahi hoga");return}
+ try{const r=await fetch(VER_URL+"?t="+Date.now());if(!r.ok)throw 0;const j=await r.json();
+  if(j&&j.version&&verCmp(j.version,APP_VERSION)>0)updSheet(j);else if(manual)toast("Tum latest version par ho (v"+APP_VERSION+")")}catch(e){if(manual)toast("Update check nahi ho paya, thodi der baad try karo")}}
+function updSheet(j){const notes=(j.notes||[]).map(n=>`<p class="sm" style="margin:3px 0">• ${esc(n)}</p>`).join("");
+ $("sheet").innerHTML=`<div class="ov"><div class="sh"><h3>\U0001F389 Naya update aaya hai — v${esc(j.version)}</h3><p class="sm mu">Tumhare paas v${APP_VERSION} hai. Update isi app ke upar install ho jayega — tumhara data safe rahega.</p><div style="margin:10px 0">${notes}</div><button class="btn p" style="width:100%" onclick="window.open('${esc(j.apk||"")}','_system');$('sheet').innerHTML=''">⬇ Abhi update karo</button><button class="btn" style="width:100%;margin-top:8px" onclick="$('sheet').innerHTML=''">Baad me</button></div></div>`}
+setTimeout(()=>checkUpdate(false),3000);
 function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet,tt:vTT})[tab]();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
 function sheet(i){const s=i<0?{name:"",attended:0,total:0,days:[]}:S.subjects[i];
  $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Naya subject":"Edit subject"}</h3><label>Naam</label><input id="sN" value="${esc(s.name)}"><div class="g2"><div><label>Attend ki</label><input id="sA" type="number" min="0" value="${s.attended}"></div><div><label>Kul hui</label><input id="sT" type="number" min="0" value="${s.total}"></div></div><label>Class kin dino me hoti hai</label><div class="chips" id="sD">${D.map((d,k)=>`<button class="chip ${(s.days||[]).includes(k)?"on":""}" data-k="${k}" onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div><button class="btn p" style="width:100%;margin-top:16px" onclick="saveSub(${i})">Save</button></div></div>`}
