@@ -1,7 +1,8 @@
-# SafeBunk v2.3 🎓
+# SafeBunk v2.4 🎓
 
 **SafeBunk is an attendance planner for college students.** It answers one question in seconds: *"Can I safely bunk today's class, or will my attendance drop below the target?"* It tracks every subject, shows recovery and safe-bunk numbers, plans leaves in advance, and — from v2.2 — understands your uploaded timetable.
 
+> **v2.4:** launcher icon ab seedha build me lagta hai (default icon wali dikkat khatam).
 > **v2.3 fix:** a startup order bug made the app open but nothing was clickable. Fixed and verified with a full simulated user-flow test (all tabs, timetable add, attend marking).
 
 ---
