@@ -1,5 +1,13 @@
-# SafeBunk v2 🎓
+# SafeBunk v2.3 🎓
+> **v2.3 fix:** startup order bug — `load()` ran before `def()` was defined, so the app opened but nothing was clickable. Fixed (def moved above load) and verified with a full simulated user-flow test (tabs, timetable add, attend marking).
 Attendance planner: Today screen, undo + history, semester projection, leave planner, login + cloud sync (Firebase), daily notification, admin user list + Excel export, share, APK.
+
+## 🗓️ Timetable (v2.2)
+New **Table** tab: upload your timetable and the app understands today's classes.
+- **Photo upload** — the photo is saved in the app and read with on-device OCR (Tesseract.js, free, needs net once); detected subjects + start/end times land on a confirm screen where anything wrong can be fixed before saving.
+- **CSV upload** — the reliable route. Format: `Day,Subject,Start,End,Room` e.g. `Mon, Accounts, 09:00, 09:50, R-12`.
+- **Manual add** — day, subject (auto-creates the subject and its class days), start, end, room.
+- **Today screen** — when timetable entries exist, today's classes show in time order with duration (e.g. `09:00 – 09:50 · 50 min`), total classes + total hours for the day, and the usual Attend/Bunk buttons per class.
 
 App icon/logo: `assets/logo.png` (web icons `www/icon-192.png` / `www/icon-512.png` isi se bane hain).
 
