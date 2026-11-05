@@ -36,38 +36,6 @@ App icon/logo: `assets/logo.png` (the web icons `www/icon-192.png` and `www/icon
 
 ---
 
-## 👑 Who is the "Owner"? (Admin — please read)
-
-**"Owner" means the creator and admin of this app — Atharv Patel.** The owner's admin email is `atharvpatel2008@gmail.com` (set as `ADMIN_EMAIL` in `www/index.html` and in the Firestore rules below). There is exactly **one** owner account. Everyone else is a normal user.
-
-### What the owner CAN see
-
-When the owner logs in to the app with the admin email, a special **"👑 Admin — users"** card appears in **Settings** (no other user ever sees this card). From there the owner can:
-
-- **See who is using the app** — the full list of signed-up users.
-- For every user, see exactly three things:
-  1. **Email address** (the one they signed up with)
-  2. **Join date** (when they first logged in) and **last login time** (when they last opened/logged in to the app)
-  3. **Total login count** (how many times they have logged in)
-- **Download the same list as an Excel file** — tap **"⬇ Excel download"** and a CSV file (`safebunk-users.csv`) is saved, which opens directly in Excel/Google Sheets. The data lives live in Firestore, so the list is always up to date — just open the app and download whenever you want.
-
-This exists so the owner can know how many people are actually using the app and whether they are active — the same basic analytics every app owner has.
-
-### What the owner can NEVER see
-
-- **Passwords.** Passwords are stored by Firebase in secure hashed form. They are not visible to the owner, to any user, or to anyone else — not in the app, not in Firebase, not in the Excel sheet. This is by design and cannot be changed.
-- **Any user's attendance data.** Every user's subjects, attendance and timetable are stored under their own private account (`users/{uid}`), and the Firestore rules below allow **only that user** to read or write it. The admin panel shows login information only — never anyone's attendance.
-
-### For normal users (privacy in one paragraph)
-
-If you create an account, the app stores: your email, your join/last-login times and login count (so the owner can see app usage, as explained above), and your own attendance data, synced privately to your account so you don't lose it. Nothing else is collected. There are no ads and no trackers. If you never log in, everything stays only on your device (guest mode).
-
-### Who can change this app and this code?
-
-This is a public repository: anyone can **view** the code and **suggest** changes (open a GitHub Issue). Only the **owner** can edit the code, approve changes and publish new versions. The app is a living project and is updated from time to time.
-
----
-
 ## 1. Enable login (Firebase, free) — owner does this once
 
 1. Go to console.firebase.google.com → **Add project** (with the owner's Google account).
@@ -99,7 +67,7 @@ This is a public repository: anyone can **view** the code and **suggest** change
 
 - Log in to the app with the owner/admin email → open **Settings** → the **"👑 Admin — users"** card appears.
 - **Users load karo / Load users** = the full user list (email, last login, login count, join date).
-- **⬇ Excel download** = the same list as a CSV file that opens in Excel. Simple version: the owner can see **who logged in, when they logged in, and how many times** — and download it as a sheet any time. (Full explanation: the **Owner** section above.)
+- **⬇ Excel download** = the same list as a CSV file that opens in Excel. Simple version: the owner can see **who logged in, when they logged in, and how many times** — and download it as a sheet any time.
 
 ## 3. Put it on GitHub
 
