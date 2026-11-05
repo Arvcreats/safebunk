@@ -16,6 +16,8 @@ h2{font-size:20px;margin:4px 0 14px}h3{font-size:15px;margin-bottom:8px}
 .btn:active{transform:scale(.97)}.btn.p{background:var(--ac);color:#06202f;border-color:var(--ac)}.btn.at{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.4)}.btn.ms{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}.btn.sq{flex:0 0 46px;padding:0}
 label{display:block;font-size:12px;color:var(--mu);margin:10px 0 5px}
 input{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:10px;outline:none}input:focus{border-color:var(--ac)}
+select{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:10px;outline:none}select:focus{border-color:var(--ac)}
+.ttt{display:inline-block;background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.35);color:var(--ac);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--tx);font-size:13px}.chip.on{background:var(--ac);color:#06202f;border-color:var(--ac);font-weight:700}
 .dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dg{background:var(--g)}.dr{background:var(--r)}
@@ -26,7 +28,7 @@ nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);fo
 </style></head><body>
 <div style="max-width:480px;margin:0 auto;padding:16px 16px 0;display:flex;gap:10px;align-items:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:40px;height:40px;border-radius:11px"><div><b style="font-size:18px">SafeBunk</b><div class="mu sm">Attendance Planner — bunk safe hai ya nahi?</div></div></div>
 <div class="wrap" id="app"></div>
-<nav><button data-t="today" onclick="go('today')"><b>📅</b>Today</button><button data-t="subj" onclick="go('subj')"><b>📚</b>Subjects</button><button data-t="plan" onclick="go('plan')"><b>✈️</b>Planner</button><button data-t="set" onclick="go('set')"><b>⚙️</b>Settings</button></nav>
+<nav><button data-t="today" onclick="go('today')"><b>📅</b>Today</button><button data-t="subj" onclick="go('subj')"><b>📚</b>Subjects</button><button data-t="tt" onclick="go('tt')"><b>🗓️</b>Table</button><button data-t="plan" onclick="go('plan')"><b>✈️</b>Planner</button><button data-t="set" onclick="go('set')"><b>⚙️</b>Settings</button></nav>
 <div id="sheet"></div><div id="toast"></div>
 <script src="firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -34,9 +36,10 @@ nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);fo
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
 const ADMIN_EMAIL="atharvpatel2008@gmail.com";
-const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[]});
+
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
 const $=id=>document.getElementById(id);
@@ -62,7 +65,7 @@ function mark(i,a){const s=S.subjects[i];(s.log=s.log||[]).push({d:today(),a:a})
 function undo(i){const s=S.subjects[i],e=(s.log||[]).pop();if(!e)return;s.total=Math.max(0,s.total-1);if(e.a)s.attended=Math.max(0,s.attended-1);save();render();toast("Undo ho gaya")}
 function go(t){tab=t;render();scrollTo(0,0)}
 const empty=`<div class="card center"><p class="mu">Koi subject nahi hai.</p><button class="btn p" style="margin-top:12px;width:100%" onclick="sheet(-1)">+ Pehla subject add karo</button></div>`;
-function vToday(){const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;if(!S.subjects.length)return h+empty;
+function vToday(){const TT=ttList(new Date().getDay());if(TT.length)return vTodayTT(TT);const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;if(!S.subjects.length)return h+empty;
  const L=S.subjects.map((s,i)=>({s,i})).filter(x=>(x.s.days||[]).includes(wd));let cls="",a,sub="";
  if(!L.length){a="😴 Aaj koi class nahi";sub="Subjects me class ke din set karo (✎)."}
  else{const p=L.filter(x=>!marked(x.s)),bl=p.filter(x=>bud(x.s).b<1);
@@ -88,7 +91,61 @@ function vSet(){const fb=!fbOK?`<p class="sm mu">Guest mode: data sirf is device
 <div class="card"><h3>📤 App share karo</h3><p class="sm mu">Doston ko bhejo — attendance ka tension khatam.</p><button class="btn p" style="width:100%;margin-top:8px" onclick="shareApp()">Share SafeBunk</button></div>
 ${user&&user.email===ADMIN_EMAIL?`<div class="card"><h3>👑 Admin — users</h3><div id="adminOut"><p class="sm mu">Kaun-kaun app use kar raha hai, kab login kiya — sab yahan dikhega.</p></div><div class="btns"><button class="btn" onclick="adminLoad()">Users load karo</button><button class="btn" onclick="adminExcel()">⬇ Excel download</button></div></div>`:""}
 <p class="sm mu">SafeBunk v2 · sirf planning ke liye, college ke rules final hain.</p>`}
-function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet})[tab]();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
+
+/* ===== Timetable (v2.2): upload photo/CSV, ya manually bharo — app samjhega aaj ki classes, time aur duration ===== */
+let TTD=[];
+const t2m=t=>{if(!t)return 0;const[a,b]=t.split(":").map(Number);return a*60+(b||0)};
+const durTxt=m=>m<=0?"":m<60?m+" min":Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":"");
+const ttList=d=>(S.tt||[]).map((e,i)=>({e,i})).filter(x=>x.e.d===d).sort((a,b)=>(a.e.s||"").localeCompare(b.e.s||""));
+function ensureSubj(name,day){let i=S.subjects.findIndex(s=>s.name.toLowerCase()===name.toLowerCase());if(i<0){S.subjects.push({name,attended:0,total:0,days:[],log:[]});i=S.subjects.length-1}const s=S.subjects[i];s.days=s.days||[];if(day!=null&&!s.days.includes(day))s.days.push(day);return i}
+function vTodayTT(TT){const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;
+ const tot=TT.reduce((x,{e})=>x+Math.max(0,t2m(e.en)-t2m(e.s)),0);
+ const L=TT.map(({e,i})=>({e,i,si:S.subjects.findIndex(s=>s.name.toLowerCase()===e.subj.toLowerCase())})).filter(x=>x.si>=0);
+ const p=L.filter(x=>!marked(S.subjects[x.si])),bl=p.filter(x=>bud(S.subjects[x.si]).b<1);let a,sub="",cls="";
+ if(!p.length){a="✅ Aaj ka attendance mark ho gaya";cls="ok"}
+ else if(!bl.length){a="✅ Haan, aaj bunk chal sakta hai";cls="ok";sub="Har baaki class me margin hai."}
+ else{a="⚠️ Aaj bunk mat karo";cls="warn";sub=bl.map(x=>esc(S.subjects[x.si].name)).join(", ")+" me margin nahi."}
+ h+=`<div class="card ans ${cls}"><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div><div style="margin-top:8px"><span class="ttt">🗓️ Aaj ${TT.length} classes · kul ${durTxt(tot)}</span></div></div>`;
+ return h+L.map(({e,si})=>{const s=S.subjects[si],m=marked(s),pr=pct(s),dur=Math.max(0,t2m(e.en)-t2m(e.s));return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><span class="pc ${zone(pr)}">${Math.round(pr)}%</span></div><p style="margin-top:6px"><span class="ttt">${esc(e.s)} – ${esc(e.en)} · ${durTxt(dur)}</span>${e.room?` <span class="ttt">${esc(e.room)}</span>`:""}</p><p class="sm mu" style="margin-top:6px">${s.attended}/${s.total} · ${advice(s)}</p>`+
+  (m?`<div class="btns"><div class="btn" style="text-align:center;line-height:26px">${m.a?"✓ Attend ki":"✕ Miss kiya"}</div><button class="btn sq" onclick="undo(${si})">↩</button></div>`:`<div class="btns"><button class="btn at" onclick="mark(${si},1)">✓ Attend ki</button><button class="btn ms" onclick="mark(${si},0)">✕ Bunk</button></div>`)+`</div>`}).join("")}
+function vTT(){let h=`<h2>🗓️ Timetable</h2><div class="card"><h3>📤 Timetable upload karo</h3><p class="sm mu">Photo upload karne par app OCR se subjects aur time padhne ki koshish karega — confirm screen me galti sudhaar sakte ho. CSV sabse pakka tareeka hai. Format: <b style="color:var(--tx)">Day,Subject,Start,End,Room</b> — jaise <i>Mon, Accounts, 09:00, 09:50, R-12</i></p><div class="btns"><button class="btn p" onclick="document.getElementById('ttImgF').click()">📷 Photo upload</button><button class="btn" onclick="document.getElementById('ttCsvF').click()">📄 CSV upload</button></div><input type="file" id="ttImgF" accept="image/*" style="display:none" onchange="ttImgUp(this)"><input type="file" id="ttCsvF" accept=".csv,text/csv,text/plain" style="display:none" onchange="ttCsvUp(this)">`+
+ (S.ttImg?`<img src="${S.ttImg}" alt="Uploaded timetable" style="width:100%;border-radius:12px;margin-top:12px"><button class="btn ms" style="width:100%;margin-top:8px" onclick="S.ttImg='';save();render()">Photo hatao</button>`:"")+`</div>`;
+ h+=`<button class="btn p" style="width:100%;margin-bottom:12px" onclick="ttSheet(-1)">+ Class manually add karo</button>`;
+ if(!(S.tt||[]).length)return h+`<div class="card"><p class="mu">Abhi timetable khaali hai. Upload ya manual add karte hi <b style="color:var(--tx)">Today</b> screen pe aaj ki classes time ke order me, har lecture ki duration ke saath dikhengi.</p></div>`;
+ return h+[1,2,3,4,5,6,0].map(d=>{const L=ttList(d);if(!L.length)return"";const tot=L.reduce((x,{e})=>x+Math.max(0,t2m(e.en)-t2m(e.s)),0);
+  return`<div class="card"><div class="row"><b>${D[d]}</b><span class="ttt">${L.length} classes · ${durTxt(tot)}</span></div>`+L.map(({e,i})=>{const dur=Math.max(0,t2m(e.en)-t2m(e.s));return`<div class="row" style="margin-top:10px"><span><b>${esc(e.subj)}</b><br><span class="sm mu">${esc(e.s)} – ${esc(e.en)} · ${durTxt(dur)}${e.room?" · "+esc(e.room):""}</span></span><span><button class="btn sq" onclick="ttSheet(${i})">✎</button> <button class="btn sq" onclick="ttDel(${i})">🗑</button></span></div>`}).join("")+`</div>`}).join("")}
+function ttDel(i){if(confirm("Ye class timetable se hata du?")){S.tt.splice(i,1);save();render()}}
+function ttSheet(i){const e=i<0?{d:new Date().getDay(),subj:"",s:"09:00",en:"09:50",room:""}:S.tt[i];
+ $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Class add karo":"Class edit karo"}</h3><label>Subject (list se chuno ya naya likho)</label><input id="tN" list="ttSubs" value="${esc(e.subj)}"><datalist id="ttSubs">${S.subjects.map(s=>`<option value="${esc(s.name)}">`).join("")}</datalist><label>Din</label><div class="chips" id="tD">${D.map((d,k)=>`<button class="chip ${e.d===k?"on":""}" data-k="${k}" onclick="document.querySelectorAll('#tD .chip').forEach(c=>c.classList.remove('on'));this.classList.add('on')">${d}</button>`).join("")}</div><div class="g2"><div><label>Shuru (start)</label><input id="tS" type="time" value="${e.s}"></div><div><label>Khatam (end)</label><input id="tE" type="time" value="${e.en}"></div></div><label>Room (optional)</label><input id="tR" value="${esc(e.room||"")}"><button class="btn p" style="width:100%;margin-top:16px" onclick="ttSave(${i})">Save</button></div></div>`}
+function ttSave(i){const n=$("tN").value.trim(),s=$("tS").value,en=$("tE").value;if(!n||!s||!en)return toast("Subject aur dono time daalo");if(t2m(en)<=t2m(s))return toast("End time, start se baad hona chahiye");
+ const on=document.querySelector("#tD .on"),d=on?+on.dataset.k:new Date().getDay(),room=$("tR").value.trim();
+ ensureSubj(n,d);const e={d,subj:n,s,en,room};if(i<0)S.tt.push(e);else S.tt[i]=e;
+ $("sheet").innerHTML="";save();render();toast("Timetable save ho gaya — "+durTxt(t2m(en)-t2m(s))+" ki class")}
+function normT(hh,mm,ap){let H=+hh;ap=(ap||"").toLowerCase();if(ap==="pm"&&H<12)H+=12;if(ap==="am"&&H===12)H=0;return String(H).padStart(2,"0")+":"+String(mm).padStart(2,"0")}
+const DAYMAP={sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
+function findDay(txt){const m=txt.toLowerCase().match(/sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues|tue|wed|thurs|thur|thu|fri|sat/);return m?DAYMAP[m[0]]:null}
+function findTimes(txt){const out=[];const re=/(\d{1,2})[:.](\d{2})\s*(am|pm)?/gi;let m;while((m=re.exec(txt))&&out.length<4)out.push(normT(m[1],m[2],m[3]));return out}
+function matchSubj(txt){const low=txt.toLowerCase();for(const s of S.subjects)if(s.name&&low.includes(s.name.toLowerCase()))return s.name;return ""}
+function parseLines(text){const dr=[];let lastDay=null;for(const line of text.split(/\n+/)){const d=findDay(line);if(d!=null)lastDay=d;const ts=findTimes(line);if(ts.length<2)continue;let subj=matchSubj(line);if(!subj){const cand=line.replace(/(\d{1,2})[:.](\d{2})\s*(am|pm)?/gi," ").replace(/sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tues|tue|wed|thurs|thur|thu|fri|sat/gi," ").replace(/[^A-Za-z& ]/g," ").trim().split(/\s+/).filter(w=>w.length>2&&!/^(the|and|room|class|lecture|period)$/i.test(w)).slice(0,3).join(" ");subj=cand}
+  if(subj&&t2m(ts[1])>t2m(ts[0]))dr.push({d:lastDay==null?new Date().getDay():lastDay,subj,s:ts[0],en:ts[1],room:""})}
+ return dr}
+function draftSheet(note){$("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh" style="max-height:88vh;overflow:auto"><h3>🗓️ Timetable confirm karo</h3><p class="sm mu">${note||""} Har class check karo — din, subject, time galat ho to yahin sudhaaro, phir Save dabao.</p>`+
+ TTD.map((e,i)=>`<div class="card" style="margin-top:10px"><label>Subject</label><input id="tdN${i}" value="${esc(e.subj)}"><div class="g2"><div><label>Din</label><select id="tdD${i}">${D.map((d,k)=>`<option value="${k}" ${e.d===k?"selected":""}>${d}</option>`).join("")}</select></div><div><label>Room</label><input id="tdR${i}" value="${esc(e.room||"")}"></div></div><div class="g2"><div><label>Start</label><input id="tdS${i}" type="time" value="${e.s}"></div><div><label>End</label><input id="tdE${i}" type="time" value="${e.en}"></div></div><button class="btn ms" style="width:100%;margin-top:10px" onclick="TTD.splice(${i},1);draftSheet()">Ye class hatao</button></div>`).join("")+
+ `<button class="btn p" style="width:100%;margin-top:14px" onclick="draftSave()">✓ Sab save karo (${TTD.length} classes)</button></div></div>`}
+function draftSave(){let n=0;TTD.forEach((e,i)=>{const subj=$("tdN"+i).value.trim(),d=+$("tdD"+i).value,s=$("tdS"+i).value,en=$("tdE"+i).value,room=$("tdR"+i).value.trim();if(!subj||!s||!en||t2m(en)<=t2m(s))return;ensureSubj(subj,d);S.tt.push({d,subj,s,en,room});n++});
+ TTD=[];$("sheet").innerHTML="";save();go("tt");toast(n+" classes timetable me jud gayi")}
+function ttCsvUp(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const dr=[];for(const line of String(r.result).split(/\n+/)){const c=line.split(",").map(x=>x.trim());if(c.length<4)continue;const d=findDay(c[0]);if(d==null)continue;const ts=[...c.slice(2,4)].map(t=>{const m=t.match(/(\d{1,2})[:.](\d{2})\s*(am|pm)?/i);return m?normT(m[1],m[2],m[3]):""});if(!c[1]||!ts[0]||!ts[1]||t2m(ts[1])<=t2m(ts[0]))continue;dr.push({d,subj:c[1],s:ts[0],en:ts[1],room:c[4]||""})}
+  inp.value="";if(!dr.length)return toast("CSV me valid rows nahi mili — format: Mon, Subject, 09:00, 09:50");TTD=dr;draftSheet("CSV se "+dr.length+" classes mili.")};r.readAsText(f)}
+function loadTes(){return new Promise((res,rej)=>{if(window.Tesseract)return res();const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js";sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)})}
+function ttImgUp(inp){const f=inp.files&&inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=async()=>{const sc=Math.min(1,1100/img.width),cv=document.createElement("canvas");cv.width=Math.round(img.width*sc);cv.height=Math.round(img.height*sc);cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);const url=cv.toDataURL("image/jpeg",.72);S.ttImg=url;save();
+  $("sheet").innerHTML=`<div class="ov"><div class="sh"><h3>📷 Photo padh raha hoon…</h3><p class="sm mu" id="ocrSt">OCR shuru ho raha hai. Photo saaf ho to subjects aur time apne aap bhar jayenge; warna confirm screen me haath se sudhaar sakte ho.</p></div></div>`;
+  try{await loadTes();const res=await Tesseract.recognize(url,"eng",{logger:m=>{const el=document.getElementById("ocrSt");if(el&&m.status==="recognizing text")el.textContent="Padh raha hoon… "+Math.round((m.progress||0)*100)+"%"}});
+   const dr=parseLines(res.data.text||"");if(dr.length){TTD=dr;draftSheet("Photo se "+dr.length+" classes mili.")}
+   else{$("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>Photo save ho gaya, par classes auto nahi mili</h3><p class="sm mu">OCR ko time/subject saaf nahi dikhe (grid-wale timetable ki photo aksar aisi hoti hai). Photo upar Timetable tab me dikhegi — use dekh ke "+ Class manually add karo" se bhar do, ya CSV upload karo, wo pakka chalega.</p><button class="btn p" style="width:100%;margin-top:14px" onclick="$('sheet').innerHTML=''">Theek hai</button></div></div>`;render()}
+  }catch(e){$("sheet").innerHTML="";toast("OCR nahi chal paya (net chahiye) — photo save hai, manually add kar lo");render()}};
+ img.src=r.result};r.readAsDataURL(f);inp.value=""}
+
+function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet,tt:vTT})[tab]();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
 function sheet(i){const s=i<0?{name:"",attended:0,total:0,days:[]}:S.subjects[i];
  $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Naya subject":"Edit subject"}</h3><label>Naam</label><input id="sN" value="${esc(s.name)}"><div class="g2"><div><label>Attend ki</label><input id="sA" type="number" min="0" value="${s.attended}"></div><div><label>Kul hui</label><input id="sT" type="number" min="0" value="${s.total}"></div></div><label>Class kin dino me hoti hai</label><div class="chips" id="sD">${D.map((d,k)=>`<button class="chip ${(s.days||[]).includes(k)?"on":""}" data-k="${k}" onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div><button class="btn p" style="width:100%;margin-top:16px" onclick="saveSub(${i})">Save</button></div></div>`}
 function saveSub(i){const n=$("sN").value.trim(),a=parseInt($("sA").value)||0,t=parseInt($("sT").value)||0;if(!n||t<a)return toast("Naam daalo, aur kul >= attend");
