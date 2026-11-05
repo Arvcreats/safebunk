@@ -14,9 +14,14 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - run: npm install
       - run: npx cap add android
-      - name: App icon from logo (fail ho to default icon chalega)
+      - name: App icon from logo (capacitor-assets, best effort)
         continue-on-error: true
-        run: npx capacitor-assets generate --android --iconPath assets/logo.png --splashPath assets/logo.png
+        run: npx capacitor-assets generate --android --iconPath assets/logo.png
+      - name: App icon direct (pakka wala — res folders me logo se icons)
+        continue-on-error: true
+        run: |
+          pip install --quiet pillow
+          python3 scripts/make_icons.py android/app/src/main/res assets/logo.png
       - run: npx cap sync android
       - run: cd android && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
