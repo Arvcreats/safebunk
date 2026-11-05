@@ -39,7 +39,7 @@ const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
 const ADMIN_EMAIL="atharvpatel2008@gmail.com";
-const APP_VERSION="2.5";
+const APP_VERSION="2.6";
 
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
@@ -92,7 +92,7 @@ function vSet(){const fb=!fbOK?`<p class="sm mu">Abhi guest mode chal raha hai �
 <div class="card"><h3>🔄 App update</h3><p class="sm mu">Tumhara version: <b style="color:var(--tx)">v${APP_VERSION}</b>. Naya version aane par app khulte hi update ka popup apne aap aa jata hai.</p><button class="btn" style="width:100%;margin-top:8px" onclick="checkUpdate(true)">Update check karo</button></div>
 <div class="card"><h3>📤 App share karo</h3><p class="sm mu">Doston ko bhejo — attendance ka tension khatam.</p><button class="btn p" style="width:100%;margin-top:8px" onclick="shareApp()">Share SafeBunk</button></div>
 ${user&&user.email===ADMIN_EMAIL?`<div class="card"><h3>👑 Admin — users</h3><div id="adminOut"><p class="sm mu">Kaun-kaun app use kar raha hai, kab login kiya — sab yahan dikhega.</p></div><div class="btns"><button class="btn" onclick="adminLoad()">Users load karo</button><button class="btn" onclick="adminExcel()">⬇ Excel download</button></div></div>`:""}
-<p class="sm mu">SafeBunk v${APP_VERSION} · sirf planning ke liye, college ke rules final hain.</p>`}
+<p class="sm mu">SafeBunk v${APP_VERSION} · sirf planning ke liye, college ke rules final hain.</p><p class="sm" style="text-align:center;margin-top:10px;color:var(--tx)">Made by <b>ARV</b> 🫶</p>`}
 
 /* ===== Timetable (v2.2): upload photo/CSV, ya manually bharo — app samjhega aaj ki classes, time aur duration ===== */
 let TTD=[];
