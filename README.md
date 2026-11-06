@@ -1,8 +1,8 @@
-# SafeBunk v2.7 🎓
+# SafeBunk v2.8 🎓
 
 **SafeBunk is an attendance planner for college students.** It answers one question in seconds: *"Can I safely bunk today's class, or will my attendance drop below the target?"* It tracks every subject, shows recovery and safe-bunk numbers, plans leaves in advance, and — from v2.2 — understands your uploaded timetable.
 
-> **v2.7:** a login / sign-up screen now appears as soon as the app opens (no need to dig into Settings), and the "Made by ARV 🫶" line sits at the bottom of every screen. **v2.6:** "Made by ARV 🫶" credit line at the bottom of the app. **v2.5:** in-app update system — the app checks for new versions on open and shows an update popup; every release is signed with the same key, so updates install over the old app without losing data.
+> **v2.8:** brand theme (violet + yellow, matching the logo), bundled Poppins font, SVG nav icons, an overall-% ring on the Today screen, human date format ("Fri, 6 Nov"), Hinglish Firebase error messages, midnight auto-refresh, mascot empty states and haptics. **v2.7:** a login / sign-up screen now appears as soon as the app opens (no need to dig into Settings), and the "Made by ARV 🫶" line sits at the bottom of every screen. **v2.6:** "Made by ARV 🫶" credit line at the bottom of the app. **v2.5:** in-app update system — the app checks for new versions on open and shows an update popup; every release is signed with the same key, so updates install over the old app without losing data.
 > **v2.4:** launcher icon ab seedha build me lagta hai (default icon wali dikkat khatam).
 > **v2.3 fix:** a startup order bug made the app open but nothing was clickable. Fixed and verified with a full simulated user-flow test (all tabs, timetable add, attend marking).
 
