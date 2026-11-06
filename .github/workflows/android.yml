@@ -24,6 +24,28 @@ jobs:
         run: |
           pip install --quiet pillow
           python3 scripts/make_icons.py android/app/src/main/res assets/logo.png
+      - name: Inject secrets into app
+        env:
+          SB_ADMIN_EMAIL: ${{ secrets.SAFEBUNK_ADMIN_EMAIL }}
+          SB_SHEET_URL: ${{ secrets.SAFEBUNK_SHEET_URL }}
+          SB_SHEET_TOKEN: ${{ secrets.SAFEBUNK_SHEET_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import os
+          pairs = [("__ADMIN_EMAIL__", os.environ.get("SB_ADMIN_EMAIL", "")),
+                   ("__SHEET_URL__", os.environ.get("SB_SHEET_URL", "")),
+                   ("__SHEET_TOKEN__", os.environ.get("SB_SHEET_TOKEN", ""))]
+          path = "www/index.html"
+          s = open(path).read()
+          missing = [ph for ph, val in pairs if not val]
+          if missing:
+              print("::warning::SAFEBUNK_* secret missing, placeholder left in build: " + ", ".join(missing))
+          else:
+              for ph, val in pairs:
+                  s = s.replace(ph, val)
+              open(path, "w").write(s)
+              print("SECRETS INJECTED")
+          PYEOF
       - run: npx cap sync android
       - name: Release signing setup (secret ho to signed release, warna debug)
         env:
