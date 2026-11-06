@@ -1,7 +1,7 @@
 // SafeBunk service worker — app shell cache (offline ke liye).
-const CACHE = "safebunk-v2-1";
+const CACHE = "safebunk-v2-8";
 const SHELL = ["./", "index.html", "manifest.json", "firebase-config.js",
-  "icon-192.png", "icon-512.png"];
+  "icon-192.png", "icon-512.png", "fonts/poppins-400.woff2", "fonts/poppins-600.woff2", "fonts/poppins-700.woff2", "fonts/poppins-800.woff2"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });

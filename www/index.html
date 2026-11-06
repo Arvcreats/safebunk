@@ -1,35 +1,40 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0B1220"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>SafeBunk</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0B0B14"><link rel="manifest" href="manifest.json"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><title>SafeBunk</title>
 <style>
-:root{--bg:#0B1220;--card:#131C2E;--c2:#182540;--line:#22314f;--tx:#E8EEF7;--mu:#93A4BC;--ac:#38BDF8;--g:#22C55E;--a:#F59E0B;--r:#EF4444}
+@font-face{font-family:Poppins;src:url("fonts/poppins-400.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-600.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-700.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:Poppins;src:url("fonts/poppins-800.woff2") format("woff2");font-weight:800;font-display:swap}
+:root{--bg:#0B0B14;--card:#14141F;--c2:#1D1D2B;--line:#282840;--tx:#EDEDF5;--mu:#9A9AB0;--ac:#7C3AED;--g:#22C55E;--a:#F59E0B;--r:#EF4444}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font:15px/1.45 Inter,system-ui,-apple-system,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 Poppins,Inter,system-ui,-apple-system,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 110px}
 h2{font-size:20px;margin:4px 0 14px}h3{font-size:15px;margin-bottom:8px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
 .mu{color:var(--mu)}.sm{font-size:12px}.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.center{text-align:center}
 .ans{text-align:center;padding:22px 16px}.ans b{font-size:22px;display:block}.ans.ok{border-color:var(--g);background:rgba(34,197,94,.08)}.ans.warn{border-color:var(--a);background:rgba(245,158,11,.08)}
-.bar{height:9px;border-radius:5px;background:#0B1220;overflow:hidden;margin:10px 0 6px}.bar i{display:block;height:100%}
+.bar{height:9px;border-radius:5px;background:#0B0B14;overflow:hidden;margin:10px 0 6px}.bar i{display:block;height:100%}
 .safe{color:var(--g)}.risk{color:var(--a)}.danger{color:var(--r)}i.safe{background:var(--g)}i.risk{background:var(--a)}i.danger{background:var(--r)}
 .pc{font-size:24px;font-weight:800}.nm{font-size:17px;font-weight:700}
 .btns{display:flex;gap:8px;margin-top:10px}
 .btn{flex:1;min-height:46px;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--c2);color:var(--tx);font-size:14px;font-weight:600}
-.btn:active{transform:scale(.97)}.btn.p{background:var(--ac);color:#06202f;border-color:var(--ac)}.btn.at{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.4)}.btn.ms{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}.btn.sq{flex:0 0 46px;padding:0}
+.btn:active{transform:scale(.97)}.btn.p{background:var(--ac);color:#fff;border-color:var(--ac)}.btn.at{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.4)}.btn.ms{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35)}.btn.sq{flex:0 0 46px;padding:0}
 label{display:block;font-size:12px;color:var(--mu);margin:10px 0 5px}
 input{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:10px;outline:none}input:focus{border-color:var(--ac)}
 select{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:10px;outline:none}select:focus{border-color:var(--ac)}
-.ttt{display:inline-block;background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.35);color:var(--ac);border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
+.ttt{display:inline-block;background:rgba(124,58,237,.16);border:1px solid rgba(124,58,237,.45);color:#C4B5FD;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--tx);font-size:13px}.chip.on{background:var(--ac);color:#06202f;border-color:var(--ac);font-weight:700}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--tx);font-size:13px}.chip.on{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:700}
 .dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dg{background:var(--g)}.dr{background:var(--r)}
-nav{position:fixed;bottom:0;left:0;right:0;background:#0f1829;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
-nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);font-size:11px}nav button.on{color:var(--ac)}nav b{display:block;font-size:20px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0E0E1A;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;padding:9px 0 11px;margin:4px 3px;border-radius:12px;background:none;border:0;color:var(--mu);font-size:11px}nav button.on{color:#C4B5FD;background:rgba(124,58,237,.20)}nav b{display:block}nav svg{width:22px;height:22px}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:9}
 .ov.c{align-items:center;padding:16px}.ov.c .sh{border-radius:20px}.sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:99;max-width:90%}
 </style></head><body>
-<div style="max-width:480px;margin:0 auto;padding:16px 16px 0;display:flex;gap:10px;align-items:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:40px;height:40px;border-radius:11px"><div><b style="font-size:18px">SafeBunk</b><div class="mu sm">Attendance Planner — bunk safe hai ya nahi?</div></div></div>
+<div style="max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 0;display:flex;gap:10px;align-items:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:40px;height:40px;border-radius:11px"><div><b style="font-size:18px">SafeBunk</b><div class="mu sm">Attendance Planner — bunk safe hai ya nahi?</div></div></div>
 <div class="wrap" id="app"></div>
-<nav><button data-t="today" onclick="go('today')"><b>📅</b>Today</button><button data-t="subj" onclick="go('subj')"><b>📚</b>Subjects</button><button data-t="tt" onclick="go('tt')"><b>🗓️</b>Table</button><button data-t="plan" onclick="go('plan')"><b>✈️</b>Planner</button><button data-t="set" onclick="go('set')"><b>⚙️</b>Settings</button></nav>
+<nav><button data-t="today" onclick="go('today')"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></b>Today</button><button data-t="subj" onclick="go('subj')"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></b>Subjects</button><button data-t="tt" onclick="go('tt')"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></b>Table</button><button data-t="plan" onclick="go('plan')"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></b>Planner</button><button data-t="set" onclick="go('set')"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3"/><path d="M14 2v4M8 10v4M16 18v4"/></svg></b>Settings</button></nav>
 <div id="sheet"></div><div id="gate"></div><div id="toast"></div>
 <script src="firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -38,9 +43,10 @@ nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);fo
 <script>
 const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
+const fmtD=d=>d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
 const ADMIN_EMAIL="atharvpatel2008@gmail.com";
-const APP_VERSION="2.7";
+const APP_VERSION="2.8";
 
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
@@ -53,6 +59,8 @@ const pct=s=>s.total?s.attended/s.total*100:0;
 const need=(a,t,f)=>(!t||a/t>=f)?0:Math.ceil((f*t-a)/(1-f));
 const safeN=(a,t,f)=>(!t||a/t<f)?0:Math.max(0,Math.floor(a/f-t));
 const zone=p=>p>=S.target-(S.round?.5:0)?"safe":p>=S.target-10?"risk":"danger";
+const opct=()=>{const A=S.subjects.reduce((x,s)=>x+s.attended,0),T=S.subjects.reduce((x,s)=>x+s.total,0);return T?A/T*100:0};
+const ring=p=>{const c=2*Math.PI*26,off=c*(1-Math.max(0,Math.min(100,p))/100);return `<svg width="64" height="64" viewBox="0 0 64 64" style="display:block;margin:0 auto 6px"><circle cx="32" cy="32" r="26" stroke="#262640" stroke-width="7" fill="none"/><circle cx="32" cy="32" r="26" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 32 32)" style="transition:stroke-dashoffset .6s ease"/><text x="32" y="37" text-anchor="middle" font-size="15" font-weight="800" fill="var(--tx)">${Math.round(p)}%</text></svg>`};
 function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.x);toast.x=setTimeout(()=>t.style.display="none",2600)}
 function countDays(s,from,to){if(!(s.days||[]).length||!from||!to)return 0;let n=0;const b=new Date(to+"T00:00");for(const d=new Date(from+"T00:00");d<=b;d.setDate(d.getDate()+1))if(s.days.includes(d.getDay()))n++;return n}
 const last=s=>(s.log||[]).slice(-1)[0];
@@ -63,18 +71,18 @@ function advice(s){const f=tf(),B=bud(s),n=need(s.attended,s.total,f);
  if(B.imp)return`<b class="danger">❌ ${S.target}% ab possible nahi:</b> baaki ${B.r} sab attend karke bhi max ${Math.floor((s.attended+B.r)/(s.total+B.r)*100)}%. College se condonation/medical ke baare me baat karo.`;
  if(B.r==null)return n?`<b class="${zone(pct(s))}">Recovery:</b> agli <b>${n}</b> classes lagatar attend karo.`:`<b class="safe">Safe:</b> abhi <b>${B.b}</b> bunk chal sakte hain.`;
  return`<b class="${B.b?"safe":"risk"}">Semester plan:</b> ${B.r} classes baaki → <b>${B.b}</b> bunk, <b>${B.r-B.b}</b> attend karni hongi.`}
-function mark(i,a){const s=S.subjects[i];(s.log=s.log||[]).push({d:today(),a:a});s.total++;s.attended+=a;save();render()}
-function undo(i){const s=S.subjects[i],e=(s.log||[]).pop();if(!e)return;s.total=Math.max(0,s.total-1);if(e.a)s.attended=Math.max(0,s.attended-1);save();render();toast("Undo ho gaya")}
+function mark(i,a){const s=S.subjects[i];(s.log=s.log||[]).push({d:today(),a:a});s.total++;s.attended+=a;if(navigator.vibrate)navigator.vibrate(15);save();render()}
+function undo(i){const s=S.subjects[i],e=(s.log||[]).pop();if(!e)return;s.total=Math.max(0,s.total-1);if(e.a)s.attended=Math.max(0,s.attended-1);if(navigator.vibrate)navigator.vibrate(10);save();render();toast("Undo ho gaya")}
 function go(t){tab=t;render();scrollTo(0,0)}
-const empty=`<div class="card center"><p class="mu">Koi subject nahi hai.</p><button class="btn p" style="margin-top:12px;width:100%" onclick="sheet(-1)">+ Pehla subject add karo</button></div>`;
-function vToday(){const TT=ttList(new Date().getDay());if(TT.length)return vTodayTT(TT);const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;if(!S.subjects.length)return h+empty;
+const empty=`<div class="card center"><img src="icon-192.png" alt="SafeBunk" style="width:72px;height:72px;border-radius:18px"><p style="margin-top:10px"><b>Abhi koi subject nahi hai</b></p><p class="mu sm" style="margin-top:4px">Pehla subject add karo — phir SafeBunk batayega kab bunk safe hai 😎</p><button class="btn p" style="margin-top:12px;width:100%" onclick="sheet(-1)">+ Pehla subject add karo</button></div>`;
+function vToday(){const TT=ttList(new Date().getDay());if(TT.length)return vTodayTT(TT);const wd=new Date().getDay();let h=`<h2>Aaj · ${fmtD(new Date())}</h2>`;if(!S.subjects.length)return h+empty;
  const L=S.subjects.map((s,i)=>({s,i})).filter(x=>(x.s.days||[]).includes(wd));let cls="",a,sub="";
  if(!L.length){a="😴 Aaj koi class nahi";sub="Subjects me class ke din set karo (✎)."}
  else{const p=L.filter(x=>!marked(x.s)),bl=p.filter(x=>bud(x.s).b<1);
   if(!p.length){a="✅ Aaj ka attendance mark ho gaya";cls="ok"}
   else if(!bl.length){a="✅ Haan, aaj bunk chal sakta hai";cls="ok";sub="Har baaki subject me margin hai."}
   else{a="⚠️ Aaj bunk mat karo";cls="warn";sub=bl.map(x=>esc(x.s.name)).join(", ")+" me margin nahi."}}
- h+=`<div class="card ans ${cls}"><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div></div>`;
+ h+=`<div class="card ans ${cls}"><span class="${zone(opct())}">${ring(opct())}</span><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div></div>`;
  return h+L.map(({s,i})=>{const m=marked(s),p=pct(s);return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><span class="pc ${zone(p)}">${Math.round(p)}%</span></div><p class="sm mu">${s.attended}/${s.total} · ${advice(s)}</p>`+
   (m?`<div class="btns"><div class="btn" style="text-align:center;line-height:26px">${m.a?"✓ Attend ki":"✕ Miss kiya"}</div><button class="btn sq" onclick="undo(${i})">↩</button></div>`:`<div class="btns"><button class="btn at" onclick="mark(${i},1)">✓ Attend ki</button><button class="btn ms" onclick="mark(${i},0)">✕ Bunk</button></div>`)+`</div>`}).join("")}
 function vSubj(){let h=`<h2>Subjects</h2>`;if(!S.subjects.length)return h+empty;
@@ -101,14 +109,14 @@ const t2m=t=>{if(!t)return 0;const[a,b]=t.split(":").map(Number);return a*60+(b|
 const durTxt=m=>m<=0?"":m<60?m+" min":Math.floor(m/60)+"h"+(m%60?" "+(m%60)+"m":"");
 const ttList=d=>(S.tt||[]).map((e,i)=>({e,i})).filter(x=>x.e.d===d).sort((a,b)=>(a.e.s||"").localeCompare(b.e.s||""));
 function ensureSubj(name,day){let i=S.subjects.findIndex(s=>s.name.toLowerCase()===name.toLowerCase());if(i<0){S.subjects.push({name,attended:0,total:0,days:[],log:[]});i=S.subjects.length-1}const s=S.subjects[i];s.days=s.days||[];if(day!=null&&!s.days.includes(day))s.days.push(day);return i}
-function vTodayTT(TT){const wd=new Date().getDay();let h=`<h2>Aaj · ${D[wd]}, ${today()}</h2>`;
+function vTodayTT(TT){const wd=new Date().getDay();let h=`<h2>Aaj · ${fmtD(new Date())}</h2>`;
  const tot=TT.reduce((x,{e})=>x+Math.max(0,t2m(e.en)-t2m(e.s)),0);
  const L=TT.map(({e,i})=>({e,i,si:S.subjects.findIndex(s=>s.name.toLowerCase()===e.subj.toLowerCase())})).filter(x=>x.si>=0);
  const p=L.filter(x=>!marked(S.subjects[x.si])),bl=p.filter(x=>bud(S.subjects[x.si]).b<1);let a,sub="",cls="";
  if(!p.length){a="✅ Aaj ka attendance mark ho gaya";cls="ok"}
  else if(!bl.length){a="✅ Haan, aaj bunk chal sakta hai";cls="ok";sub="Har baaki class me margin hai."}
  else{a="⚠️ Aaj bunk mat karo";cls="warn";sub=bl.map(x=>esc(S.subjects[x.si].name)).join(", ")+" me margin nahi."}
- h+=`<div class="card ans ${cls}"><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div><div style="margin-top:8px"><span class="ttt">🗓️ Aaj ${TT.length} classes · kul ${durTxt(tot)}</span></div></div>`;
+ h+=`<div class="card ans ${cls}"><span class="${zone(opct())}">${ring(opct())}</span><b>${a}</b><div class="mu sm" style="margin-top:6px">${sub}</div><div style="margin-top:8px"><span class="ttt">🗓️ Aaj ${TT.length} classes · kul ${durTxt(tot)}</span></div></div>`;
  return h+L.map(({e,si})=>{const s=S.subjects[si],m=marked(s),pr=pct(s),dur=Math.max(0,t2m(e.en)-t2m(e.s));return`<div class="card"><div class="row"><span class="nm">${esc(s.name)}</span><span class="pc ${zone(pr)}">${Math.round(pr)}%</span></div><p style="margin-top:6px"><span class="ttt">${esc(e.s)} – ${esc(e.en)} · ${durTxt(dur)}</span>${e.room?` <span class="ttt">${esc(e.room)}</span>`:""}</p><p class="sm mu" style="margin-top:6px">${s.attended}/${s.total} · ${advice(s)}</p>`+
   (m?`<div class="btns"><div class="btn" style="text-align:center;line-height:26px">${m.a?"✓ Attend ki":"✕ Miss kiya"}</div><button class="btn sq" onclick="undo(${si})">↩</button></div>`:`<div class="btns"><button class="btn at" onclick="mark(${si},1)">✓ Attend ki</button><button class="btn ms" onclick="mark(${si},0)">✕ Bunk</button></div>`)+`</div>`}).join("")}
 function vTT(){let h=`<h2>🗓️ Timetable</h2><div class="card"><h3>📤 Timetable upload karo</h3><p class="sm mu">Photo upload karne par app OCR se subjects aur time padhne ki koshish karega — confirm screen me galti sudhaar sakte ho. CSV sabse pakka tareeka hai. Format: <b style="color:var(--tx)">Day,Subject,Start,End,Room</b> — jaise <i>Mon, Accounts, 09:00, 09:50, R-12</i></p><div class="btns"><button class="btn p" onclick="document.getElementById('ttImgF').click()">📷 Photo upload</button><button class="btn" onclick="document.getElementById('ttCsvF').click()">📄 CSV upload</button></div><input type="file" id="ttImgF" accept="image/*" style="display:none" onchange="ttImgUp(this)"><input type="file" id="ttCsvF" accept=".csv,text/csv,text/plain" style="display:none" onchange="ttCsvUp(this)">`+
@@ -158,7 +166,7 @@ async function checkUpdate(manual){if(typeof navigator!=="undefined"&&navigator.
 function updSheet(j){const notes=(j.notes||[]).map(n=>`<p class="sm" style="margin:3px 0">• ${esc(n)}</p>`).join("");
  $("sheet").innerHTML=`<div class="ov"><div class="sh"><h3>🎉 Naya update aaya hai — v${esc(j.version)}</h3><p class="sm mu">Tumhare paas v${APP_VERSION} hai. Update isi app ke upar install ho jayega — tumhara data safe rahega.</p><div style="margin:10px 0">${notes}</div><button class="btn p" style="width:100%" onclick="window.open('${esc(j.apk||"")}','_system');$('sheet').innerHTML=''">⬇ Abhi update karo</button><button class="btn" style="width:100%;margin-top:8px" onclick="$('sheet').innerHTML=''">Baad me</button></div></div>`}
 setTimeout(()=>checkUpdate(false),3000);
-const FOOT=`<p class="sm" style="text-align:center;margin:20px 0 4px;color:var(--tx)">Made by <b>ARV</b> 🫶</p>`;
+const FOOT=`<p class="sm" style="text-align:center;margin:20px 0 4px;color:var(--tx)">Made by <b style="color:#FACC15">ARV</b> 🫶</p>`;
 function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet,tt:vTT})[tab]()+FOOT;showGate();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
 function sheet(i){const s=i<0?{name:"",attended:0,total:0,days:[]}:S.subjects[i];
  $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Naya subject":"Edit subject"}</h3><label>Naam</label><input id="sN" value="${esc(s.name)}"><div class="g2"><div><label>Attend ki</label><input id="sA" type="number" min="0" value="${s.attended}"></div><div><label>Kul hui</label><input id="sT" type="number" min="0" value="${s.total}"></div></div><label>Class kin dino me hoti hai</label><div class="chips" id="sD">${D.map((d,k)=>`<button class="chip ${(s.days||[]).includes(k)?"on":""}" data-k="${k}" onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div><button class="btn p" style="width:100%;margin-top:16px" onclick="saveSub(${i})">Save</button></div></div>`}
@@ -175,12 +183,13 @@ let ADMIN_ROWS=[];
 async function prof(u){if(!db)return;try{const ref=db.collection("profiles").doc(u.uid);const p=await ref.get();const FV=firebase.firestore.FieldValue;await ref.set({email:u.email,lastLogin:Date.now(),loginCount:FV.increment(1),createdAt:p.exists&&p.data().createdAt?p.data().createdAt:Date.now()},{merge:true})}catch(e){}}
 function adminLoad(){if(!db)return toast("Pehle login + Firebase chahiye");$("adminOut").innerHTML="<p class='sm mu'>Load ho raha hai...</p>";db.collection("profiles").orderBy("lastLogin","desc").get().then(q=>{ADMIN_ROWS=q.docs.map(d=>d.data());$("adminOut").innerHTML=ADMIN_ROWS.length?ADMIN_ROWS.map(r=>`<p class="sm" style="margin:4px 0">👤 <b>${esc(r.email||"")}</b><br><span class="mu">Last login: ${r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"—"} · Kul logins: ${r.loginCount||1} · Join: ${r.createdAt?new Date(r.createdAt).toLocaleDateString("en-IN"):"—"}</span></p>`).join(""):"<p class='sm mu'>Abhi koi user nahi.</p>"}).catch(e=>{$("adminOut").innerHTML="<p class='sm mu'>Load nahi hua: "+esc(e.message)+"</p>"})}
 function adminExcel(){if(!ADMIN_ROWS.length)return toast("Pehle 'Users load karo' dabao");const rows=[["Email","Join Date","Last Login","Total Logins"]].concat(ADMIN_ROWS.map(r=>[r.email||"",r.createdAt?new Date(r.createdAt).toLocaleString("en-IN"):"",r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"",r.loginCount||1]));const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));a.download="safebunk-users.csv";a.click();toast("Excel file download ho gayi")}
-function authGo(up){const e=$("aE").value.trim(),p=$("aP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(x.message))}
+function errMsg(x){const M={"auth/invalid-credential":"Email ya password galat hai","auth/wrong-password":"Password galat hai","auth/user-not-found":"Is email se account nahi hai — pehle Sign up karo","auth/email-already-in-use":"Ye email pehle se registered hai — Login karo","auth/weak-password":"Password kamzor hai — 6+ characters rakho","auth/invalid-email":"Email sahi format me likho","auth/network-request-failed":"Internet nahi chal raha — phir try karo","auth/too-many-requests":"Bohot zyada try ho gaye — thodi der baad try karo"};return M[(x&&x.code)||""]||"Kuch gadbad ho gayi — phir try karo"}
+function authGo(up){const e=$("aE").value.trim(),p=$("aP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(errMsg(x)))}
 /* ===== Login gate (v2.7): app khulte hi login/sign-up screen ===== */
 let gateSkip=false;
 function showGate(){if(!fbOK||user||gateSkip)return;const g=$("gate");if(!g||g.innerHTML)return;g.innerHTML=`<div class="ov c"><div class="sh"><div style="text-align:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:64px;height:64px;border-radius:16px"><h2 style="margin:10px 0 4px">SafeBunk me swagat hai 🎓</h2><p class="sm mu">Login ya sign up karo — tumhara attendance data har device par sync rahega.</p></div><label>Email</label><input id="gE" type="email" autocomplete="email"><label>Password (6+)</label><input id="gP" type="password" autocomplete="current-password"><div class="btns"><button class="btn p" onclick="gateGo(0)">Login</button><button class="btn" onclick="gateGo(1)">Sign up</button></div><button class="btn" style="width:100%;margin-top:10px;background:none;border:0;color:var(--mu);font-size:13px" onclick="gateGuest()">Abhi nahi — guest mode me chalao →</button></div></div>`}
 function hideGate(){const g=$("gate");if(g)g.innerHTML=""}
-function gateGo(up){const e=$("gE").value.trim(),p=$("gP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(x.message))}
+function gateGo(up){const e=$("gE").value.trim(),p=$("gP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(errMsg(x)))}
 function gateGuest(){gateSkip=true;hideGate();toast("Guest mode — data sirf is device me rahega")}
 async function setRemind(t){S.remind=t;save();const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
  try{if(LN){const p=await LN.requestPermissions();if(p.display!=="granted")return toast("Notification permission do");await LN.cancel({notifications:[{id:1}]});if(!t)return;const [h,m]=t.split(":").map(Number);await LN.schedule({notifications:[{id:1,title:"SafeBunk 🎓",body:"Aaj ki classes mark kar lo — attendance safe rakho!",schedule:{on:{hour:h,minute:m},allowWhileIdle:true}}]});toast("Reminder set: "+t)}
@@ -190,4 +199,5 @@ try{if(typeof firebase!=="undefined"&&window.FIREBASE_CONFIG&&FIREBASE_CONFIG.ap
  auth.onAuthStateChanged(async u=>{user=u;if(u){hideGate();prof(u);try{const d=await db.collection("users").doc(u.uid).get();if(d.exists){const r=JSON.parse(d.data().data);if(r&&Array.isArray(r.subjects)&&(r._u||0)>=(S._u||0)){S=Object.assign(def(),r);localStorage.setItem(KEY,JSON.stringify(S))}else save()}else save()}catch(e){}}render()})}}catch(e){}
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 render();
+let _day=today();setInterval(()=>{if(today()!==_day){_day=today();render()}},30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden&&today()!==_day){_day=today();render()}});
 </script></body></html>
