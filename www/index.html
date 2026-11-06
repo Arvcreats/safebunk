@@ -23,13 +23,14 @@ select{width:100%;padding:12px;font-size:15px;color:var(--tx);background:var(--c
 .dots i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dg{background:var(--g)}.dr{background:var(--r)}
 nav{position:fixed;bottom:0;left:0;right:0;background:#0f1829;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
 nav button{flex:1;padding:9px 0 11px;background:none;border:0;color:var(--mu);font-size:11px}nav button.on{color:var(--ac)}nav b{display:block;font-size:20px}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:9}.sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:9}
+.ov.c{align-items:center;padding:16px}.ov.c .sh{border-radius:20px}.sh{background:var(--card);width:100%;max-width:480px;margin:0 auto;border-radius:20px 20px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
 #toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#fff;color:#111;padding:10px 16px;border-radius:999px;font-size:13px;display:none;z-index:99;max-width:90%}
 </style></head><body>
 <div style="max-width:480px;margin:0 auto;padding:16px 16px 0;display:flex;gap:10px;align-items:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:40px;height:40px;border-radius:11px"><div><b style="font-size:18px">SafeBunk</b><div class="mu sm">Attendance Planner — bunk safe hai ya nahi?</div></div></div>
 <div class="wrap" id="app"></div>
 <nav><button data-t="today" onclick="go('today')"><b>📅</b>Today</button><button data-t="subj" onclick="go('subj')"><b>📚</b>Subjects</button><button data-t="tt" onclick="go('tt')"><b>🗓️</b>Table</button><button data-t="plan" onclick="go('plan')"><b>✈️</b>Planner</button><button data-t="set" onclick="go('set')"><b>⚙️</b>Settings</button></nav>
-<div id="sheet"></div><div id="toast"></div>
+<div id="sheet"></div><div id="gate"></div><div id="toast"></div>
 <script src="firebase-config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -39,7 +40,7 @@ const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
 const ADMIN_EMAIL="atharvpatel2008@gmail.com";
-const APP_VERSION="2.6";
+const APP_VERSION="2.7";
 
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
@@ -92,7 +93,7 @@ function vSet(){const fb=!fbOK?`<p class="sm mu">Abhi guest mode chal raha hai �
 <div class="card"><h3>🔄 App update</h3><p class="sm mu">Tumhara version: <b style="color:var(--tx)">v${APP_VERSION}</b>. Naya version aane par app khulte hi update ka popup apne aap aa jata hai.</p><button class="btn" style="width:100%;margin-top:8px" onclick="checkUpdate(true)">Update check karo</button></div>
 <div class="card"><h3>📤 App share karo</h3><p class="sm mu">Doston ko bhejo — attendance ka tension khatam.</p><button class="btn p" style="width:100%;margin-top:8px" onclick="shareApp()">Share SafeBunk</button></div>
 ${user&&user.email===ADMIN_EMAIL?`<div class="card"><h3>👑 Admin — users</h3><div id="adminOut"><p class="sm mu">Kaun-kaun app use kar raha hai, kab login kiya — sab yahan dikhega.</p></div><div class="btns"><button class="btn" onclick="adminLoad()">Users load karo</button><button class="btn" onclick="adminExcel()">⬇ Excel download</button></div></div>`:""}
-<p class="sm mu">SafeBunk v${APP_VERSION} · sirf planning ke liye, college ke rules final hain.</p><p class="sm" style="text-align:center;margin-top:10px;color:var(--tx)">Made by <b>ARV</b> 🫶</p>`}
+<p class="sm mu">SafeBunk v${APP_VERSION} · sirf planning ke liye, college ke rules final hain.</p>`}
 
 /* ===== Timetable (v2.2): upload photo/CSV, ya manually bharo — app samjhega aaj ki classes, time aur duration ===== */
 let TTD=[];
@@ -155,9 +156,10 @@ async function checkUpdate(manual){if(typeof navigator!=="undefined"&&navigator.
  try{const r=await fetch(VER_URL+"?t="+Date.now());if(!r.ok)throw 0;const j=await r.json();
   if(j&&j.version&&verCmp(j.version,APP_VERSION)>0)updSheet(j);else if(manual)toast("Tum latest version par ho (v"+APP_VERSION+")")}catch(e){if(manual)toast("Update check nahi ho paya, thodi der baad try karo")}}
 function updSheet(j){const notes=(j.notes||[]).map(n=>`<p class="sm" style="margin:3px 0">• ${esc(n)}</p>`).join("");
- $("sheet").innerHTML=`<div class="ov"><div class="sh"><h3>\U0001F389 Naya update aaya hai — v${esc(j.version)}</h3><p class="sm mu">Tumhare paas v${APP_VERSION} hai. Update isi app ke upar install ho jayega — tumhara data safe rahega.</p><div style="margin:10px 0">${notes}</div><button class="btn p" style="width:100%" onclick="window.open('${esc(j.apk||"")}','_system');$('sheet').innerHTML=''">⬇ Abhi update karo</button><button class="btn" style="width:100%;margin-top:8px" onclick="$('sheet').innerHTML=''">Baad me</button></div></div>`}
+ $("sheet").innerHTML=`<div class="ov"><div class="sh"><h3>🎉 Naya update aaya hai — v${esc(j.version)}</h3><p class="sm mu">Tumhare paas v${APP_VERSION} hai. Update isi app ke upar install ho jayega — tumhara data safe rahega.</p><div style="margin:10px 0">${notes}</div><button class="btn p" style="width:100%" onclick="window.open('${esc(j.apk||"")}','_system');$('sheet').innerHTML=''">⬇ Abhi update karo</button><button class="btn" style="width:100%;margin-top:8px" onclick="$('sheet').innerHTML=''">Baad me</button></div></div>`}
 setTimeout(()=>checkUpdate(false),3000);
-function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet,tt:vTT})[tab]();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
+const FOOT=`<p class="sm" style="text-align:center;margin:20px 0 4px;color:var(--tx)">Made by <b>ARV</b> 🫶</p>`;
+function render(){$("app").innerHTML=({today:vToday,subj:vSubj,plan:vPlan,set:vSet,tt:vTT})[tab]()+FOOT;showGate();document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab))}
 function sheet(i){const s=i<0?{name:"",attended:0,total:0,days:[]}:S.subjects[i];
  $("sheet").innerHTML=`<div class="ov" onclick="if(event.target===this)$('sheet').innerHTML=''"><div class="sh"><h3>${i<0?"Naya subject":"Edit subject"}</h3><label>Naam</label><input id="sN" value="${esc(s.name)}"><div class="g2"><div><label>Attend ki</label><input id="sA" type="number" min="0" value="${s.attended}"></div><div><label>Kul hui</label><input id="sT" type="number" min="0" value="${s.total}"></div></div><label>Class kin dino me hoti hai</label><div class="chips" id="sD">${D.map((d,k)=>`<button class="chip ${(s.days||[]).includes(k)?"on":""}" data-k="${k}" onclick="this.classList.toggle('on')">${d}</button>`).join("")}</div><button class="btn p" style="width:100%;margin-top:16px" onclick="saveSub(${i})">Save</button></div></div>`}
 function saveSub(i){const n=$("sN").value.trim(),a=parseInt($("sA").value)||0,t=parseInt($("sT").value)||0;if(!n||t<a)return toast("Naam daalo, aur kul >= attend");
@@ -174,12 +176,18 @@ async function prof(u){if(!db)return;try{const ref=db.collection("profiles").doc
 function adminLoad(){if(!db)return toast("Pehle login + Firebase chahiye");$("adminOut").innerHTML="<p class='sm mu'>Load ho raha hai...</p>";db.collection("profiles").orderBy("lastLogin","desc").get().then(q=>{ADMIN_ROWS=q.docs.map(d=>d.data());$("adminOut").innerHTML=ADMIN_ROWS.length?ADMIN_ROWS.map(r=>`<p class="sm" style="margin:4px 0">👤 <b>${esc(r.email||"")}</b><br><span class="mu">Last login: ${r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"—"} · Kul logins: ${r.loginCount||1} · Join: ${r.createdAt?new Date(r.createdAt).toLocaleDateString("en-IN"):"—"}</span></p>`).join(""):"<p class='sm mu'>Abhi koi user nahi.</p>"}).catch(e=>{$("adminOut").innerHTML="<p class='sm mu'>Load nahi hua: "+esc(e.message)+"</p>"})}
 function adminExcel(){if(!ADMIN_ROWS.length)return toast("Pehle 'Users load karo' dabao");const rows=[["Email","Join Date","Last Login","Total Logins"]].concat(ADMIN_ROWS.map(r=>[r.email||"",r.createdAt?new Date(r.createdAt).toLocaleString("en-IN"):"",r.lastLogin?new Date(r.lastLogin).toLocaleString("en-IN"):"",r.loginCount||1]));const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",")).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));a.download="safebunk-users.csv";a.click();toast("Excel file download ho gayi")}
 function authGo(up){const e=$("aE").value.trim(),p=$("aP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(x.message))}
+/* ===== Login gate (v2.7): app khulte hi login/sign-up screen ===== */
+let gateSkip=false;
+function showGate(){if(!fbOK||user||gateSkip)return;const g=$("gate");if(!g||g.innerHTML)return;g.innerHTML=`<div class="ov c"><div class="sh"><div style="text-align:center"><img src="icon-192.png" alt="SafeBunk logo" style="width:64px;height:64px;border-radius:16px"><h2 style="margin:10px 0 4px">SafeBunk me swagat hai 🎓</h2><p class="sm mu">Login ya sign up karo — tumhara attendance data har device par sync rahega.</p></div><label>Email</label><input id="gE" type="email" autocomplete="email"><label>Password (6+)</label><input id="gP" type="password" autocomplete="current-password"><div class="btns"><button class="btn p" onclick="gateGo(0)">Login</button><button class="btn" onclick="gateGo(1)">Sign up</button></div><button class="btn" style="width:100%;margin-top:10px;background:none;border:0;color:var(--mu);font-size:13px" onclick="gateGuest()">Abhi nahi — guest mode me chalao →</button></div></div>`}
+function hideGate(){const g=$("gate");if(g)g.innerHTML=""}
+function gateGo(up){const e=$("gE").value.trim(),p=$("gP").value;if(!e||p.length<6)return toast("Email aur 6+ char password daalo");(up?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(x=>toast(x.message))}
+function gateGuest(){gateSkip=true;hideGate();toast("Guest mode — data sirf is device me rahega")}
 async function setRemind(t){S.remind=t;save();const LN=window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
  try{if(LN){const p=await LN.requestPermissions();if(p.display!=="granted")return toast("Notification permission do");await LN.cancel({notifications:[{id:1}]});if(!t)return;const [h,m]=t.split(":").map(Number);await LN.schedule({notifications:[{id:1,title:"SafeBunk 🎓",body:"Aaj ki classes mark kar lo — attendance safe rakho!",schedule:{on:{hour:h,minute:m},allowWhileIdle:true}}]});toast("Reminder set: "+t)}
  else if("Notification" in window){await Notification.requestPermission();toast("Reminder tab khula ho tab chalega (APK me hamesha)")}}catch(e){toast("Reminder set nahi hua")}}
 setInterval(()=>{if(!S.remind||!("Notification" in window)||Notification.permission!=="granted"||(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()))return;const n=new Date(),hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");if(hm===S.remind&&localStorage.sbN!==today()){localStorage.sbN=today();new Notification("SafeBunk 🎓",{body:"Aaj ki classes mark kar lo"})}},20000);
 try{if(typeof firebase!=="undefined"&&window.FIREBASE_CONFIG&&FIREBASE_CONFIG.apiKey){firebase.initializeApp(FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();fbOK=true;
- auth.onAuthStateChanged(async u=>{user=u;if(u){prof(u);try{const d=await db.collection("users").doc(u.uid).get();if(d.exists){const r=JSON.parse(d.data().data);if(r&&Array.isArray(r.subjects)&&(r._u||0)>=(S._u||0)){S=Object.assign(def(),r);localStorage.setItem(KEY,JSON.stringify(S))}else save()}else save()}catch(e){}}render()})}}catch(e){}
+ auth.onAuthStateChanged(async u=>{user=u;if(u){hideGate();prof(u);try{const d=await db.collection("users").doc(u.uid).get();if(d.exists){const r=JSON.parse(d.data().data);if(r&&Array.isArray(r.subjects)&&(r._u||0)>=(S._u||0)){S=Object.assign(def(),r);localStorage.setItem(KEY,JSON.stringify(S))}else save()}else save()}catch(e){}}render()})}}catch(e){}
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 render();
 </script></body></html>
