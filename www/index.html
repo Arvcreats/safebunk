@@ -45,10 +45,10 @@ const KEY="safebunk_v2",D=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const def=()=>({target:75,round:true,semEnd:"",remind:"",subjects:[],tt:[],ttImg:""});
 const fmtD=d=>d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
 let S=load(),tab="today",user=null,auth=null,db=null,fbOK=false,pf="",pt="";
-const ADMIN_EMAIL="atharvpatel2008@gmail.com";
-const SHEET_URL="https://script.google.com/macros/s/AKfycbx8SZNvgfMBGWoEt68qqkIzkjEVYQTuhlb30RlXgoshPH7ufk_G_fyancn-XBR9NL4tVw/exec";const SHEET_TOKEN="d68b0f571be624cab64f2726";
+const ADMIN_EMAIL="__ADMIN_EMAIL__";
+const SHEET_URL="__SHEET_URL__";const SHEET_TOKEN="__SHEET_TOKEN__";
 function sheetFeed(u){if(!SHEET_URL)return;try{fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({token:SHEET_TOKEN,email:u.email,uid:u.uid})}).catch(()=>{})}catch(e){}}
-const APP_VERSION="2.9";
+const APP_VERSION="2.9.1";
 
 function load(){try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&Array.isArray(r.subjects))return Object.assign(def(),r)}catch(e){}return def()}
 let ft;function save(){S._u=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(db&&user){clearTimeout(ft);ft=setTimeout(()=>db.collection("users").doc(user.uid).set({data:JSON.stringify(S),t:Date.now()}).catch(()=>{}),800)}}
