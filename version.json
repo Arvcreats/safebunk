@@ -1,1 +1,9 @@
-{"apk": "https://github.com/Arvcreats/safebunk/releases/latest/download/SafeBunk.apk", "notes": ["Login hote hi users ki list admin ki Google Sheet me apne aap — app wala admin panel bhi waisa hi hai", "Baaki saare features pehle jaise hi hain"], "version": "2.9.1"}
+{
+ "apk": "https://github.com/Arvcreats/safebunk/releases/latest/download/SafeBunk.apk",
+ "notes": [
+  "Security update: photo/CSV upload par size aur type ki jaanch — bahut badi ya galat file ab app ko hang nahi karegi",
+  "Subject aur room ke naam ki lambai fix (60/30 akshar) aur data import me extra jaanch",
+  "Baaki saare features pehle jaise hi hain"
+ ],
+ "version": "2.9.2"
+}
